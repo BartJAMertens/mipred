@@ -39,8 +39,6 @@ Calculates predictions from generalized linear models when multiple
 imputations are used to account for missing values in predictor data.
 }
 \examples{
-
-#load("cll.rda")
 cll_bin<-cll # Generate a copy and construct binary outcome from survival information
 cll_bin$srv5y_s[cll_bin$srv5y>12] <- 0  # Apply administrative censorship at t=12 months
 cll_bin$srv5y[cll_bin$srv5y>12]  <- 12
