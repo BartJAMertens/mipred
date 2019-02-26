@@ -1,0 +1,20 @@
+#' CLL data
+#'
+#' A dataset containing survival outcome and predictors on 694 patients.
+#'
+#' @format A data frame with 694 rows and 11 variables:
+#' \describe{
+#'   \item{id}{record identifcation number}
+#'   \item{age10}{age at transplantation}
+#'   \item{perfstat}{performance status indicated by the Karnofsky Index (four categories)}
+#'   \item{remstat}{remission status at transplantation (three categories)}
+#'   \item{cyto}{cytogenetic abnormalities (four categories)}
+#'   \item{asct}{previous autologous transplantation (two categories)}
+#'   \item{donor}{donor type (three categories)}
+#'   \item{sex_match}{patient-donor sex match (four categories)}
+#'   \item{cond}{conditioning regimen (three categories)}
+#'   \item{srv5y}{overall survival (OS) up to five years after first allogeneic stem cell transplantation}
+#'   \item{srv5y_s}{censoring indicator (0=alive at end follow-up, 1=dead)}
+#' }
+#' @source \url{}
+"cll"
