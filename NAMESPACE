@@ -3,3 +3,5 @@
 export(mipred)
 importFrom(mice,complete)
 importFrom(mice,mice)
+importFrom(stats,glm)
+importFrom(stats,model.matrix)

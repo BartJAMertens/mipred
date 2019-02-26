@@ -19,7 +19,7 @@
   \item{srv5y_s}{censoring indicator (0=alive at end follow-up, 1=dead)}
 }}
 \source{
-\url{}
+\url{https://arxiv.org/abs/1810.05099}
 }
 \usage{
 cll

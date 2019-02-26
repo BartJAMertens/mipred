@@ -14,7 +14,7 @@ Description: Calibration of generalized linear models and Cox regression models 
     For both implementations, unobserved values in the predictor data of new observations for 
     which the predictions are derived are automatically imputed. In the present preliminary (development)
     version, only binary-outcome logistic regression is supported.
-Depends: R (>= 3.5.2)
+Depends: R (>= 3.5.0)
 Imports:
     mice
 License: GPL-3

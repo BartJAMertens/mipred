@@ -1,20 +1,28 @@
 #' Prediction using multiple imputation
 #'
-#' Calculates predictions from generalized linear models when multiple imputations are used to
-#' account for missing values in predictor data.
+#' Calculates predictions from generalized linear models when multiple
+#' imputations are used to account for missing values in predictor data.
 #'
-#' @param formula A formula object providing a symbolic description of the prediction model to be fitted.
-#' @param family Specification of an appropriate error distribution and link function.
-#' @param data A data.frame containing calibration data on \code{n} samples. Variables declared in \code{formula} must be found in \code{data}.
-#' @param newdata A data.frame containing the predictors for observations to be predicted on \code{m} samples. This must have the same structure and variables as \code{data}, except for the outcome variable which is ignored in the construction of the predictions and can therefor be excluded from the object.
+#' @param formula A formula object providing a symbolic description of the
+#'   prediction model to be fitted.
+#' @param family Specification of an appropriate error distribution and link
+#'   function.
+#' @param data A data.frame containing calibration data on \code{n} samples.
+#'   Variables declared in \code{formula} must be found in \code{data}.
+#' @param newdata A data.frame containing the predictors for observations to be
+#'   predicted on \code{m} samples. This must have the same structure and
+#'   variables as \code{data}, except for the outcome variable which is ignored
+#'   in the construction of the predictions and can therefor be excluded from
+#'   the object.
 #' @param nimp Number of imputations used in the prediction of each observation.
-#' @param method Imputation combination method. This defaults to \code{"averaging"} for the prediction-averaging approach. The alternative \code{"rubin"} applies the Rubin's rules pooled model.
+#' @param method Imputation combination method. This defaults to
+#'   \code{"averaging"} for the prediction-averaging approach. The alternative
+#'   \code{"rubin"} applies the Rubin's rules pooled model.
 #'
-#' @return A list containing predictions.
-#' \describe{
-#'   \item{\code{pred}}{Matrix of predictions on the scale of the response variable of dimension \code{m} by \code{nimp}.}
-#'   \item{\code{linpred}}{Matrix of predictions on the scale of the linear predictor of dimension \code{m} by \code{nimp}.}
-#' }
+#' @return A list containing predictions. \describe{ \item{\code{pred}}{Matrix
+#'   of predictions on the scale of the response variable of dimension \code{m}
+#'   by \code{nimp}.} \item{\code{linpred}}{Matrix of predictions on the scale
+#'   of the linear predictor of dimension \code{m} by \code{nimp}.} }
 #'
 #' @author Bart J A Mertens, \email{b.mertens@lumc.nl}
 #' @references \url{https://arxiv.org/abs/1810.05099}
@@ -22,7 +30,7 @@
 #'
 #' @examples
 #'
-#' load("cll.rda")
+#' #load("cll.rda")
 #' cll_bin<-cll # Generate a copy and construct binary outcome from survival information
 #' cll_bin$srv5y_s[cll_bin$srv5y>12] <- 0  # Apply administrative censorship at t=12 months
 #' cll_bin$srv5y[cll_bin$srv5y>12]  <- 12
@@ -33,12 +41,14 @@
 #' cll_bin$srv5y_s <- NULL
 #'
 #' set.seed(12345)
-#' # Predict observations 501 to 507 using the first 500 records to calibrate predictors
+#' # Predict observations 501 to 507 using the first 100 records to calibrate predictors
 #' # Apply prediction-averaging using 5 imputations
-#' output<-mipred(Status~age10+perfstat+remstat+cyto+asct+donor+sex_match+cond,family=binomial,data=cll_bin[1:500,], newdata=cll_bin[501:507,-10], nimp=5)
+#' output<-mipred(Status~perfstat+remstat+cyto, family=binomial, data=cll_bin[1:100,],
+#'   newdata=cll_bin[501:507,-10], nimp=5)
 #'
 #' @export
 #' @importFrom mice mice complete
+#' @importFrom stats glm model.matrix
 #'
 mipred <- function(formula, family, data, newdata, nimp, method="averaging")  {
 

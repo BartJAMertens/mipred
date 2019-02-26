@@ -16,5 +16,5 @@
 #'   \item{srv5y}{overall survival (OS) up to five years after first allogeneic stem cell transplantation}
 #'   \item{srv5y_s}{censoring indicator (0=alive at end follow-up, 1=dead)}
 #' }
-#' @source \url{}
+#' @source \url{https://arxiv.org/abs/1810.05099}
 "cll"
