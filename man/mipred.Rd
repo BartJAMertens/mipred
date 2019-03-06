@@ -4,7 +4,8 @@
 \alias{mipred}
 \title{Prediction using multiple imputation}
 \usage{
-mipred(formula, family, data, newdata, nimp, method = "averaging")
+mipred(formula, family, data, newdata, nimp, method = "averaging",
+  folds = NULL, mice.options = NULL)
 }
 \arguments{
 \item{formula}{A formula object providing a symbolic description of the
@@ -27,6 +28,21 @@ the object.}
 \item{method}{Imputation combination method. This defaults to
 \code{"averaging"} for the prediction-averaging approach. The alternative
 \code{"rubin"} applies the Rubin's rules pooled model.}
+
+\item{folds}{Number of folds defined within \code{newdata}.
+An integer from 1 to \code{nrow(newdata)}. Defaults to NULL which internally
+sets \code{folds=nrow(newdata)}, which puts each observation in \code{newdata}
+into its own singleton fold.}
+
+\item{mice.options}{Optional list containing arguments to be supplied to \code{mice}.
+The following options may be specified: \code{method}, \code{predictorMatrix}, \code{blocks},
+\code{visitSequence}, \code{formulas}, \code{blots}, \code{post}, \code{defaultMethod},
+\code{maxit}, \code{printFlag}, \code{seed}, \code{data.init}. Please refer to the
+\code{mice} documentation for the description of these options. To set the number
+of imputations \code{nimp} should be used. The \code{defaultMethod} is set to
+\code{c("pmm", "logreg", "polyreg", "polr")} by default. The default setting for
+\code{printFlag} is FALSE. The default for \code{maxit} is 50. All other options are set
+to \code{NULL} by default.}
 }
 \value{
 A list containing predictions. \describe{ \item{\code{pred}}{Matrix
@@ -39,7 +55,7 @@ Calculates predictions from generalized linear models when multiple
 imputations are used to account for missing values in predictor data.
 }
 \examples{
-cll_bin<-cll # Generate a copy and construct binary outcome from survival information
+cll_bin<-cll # Generate a copy of the cll data and construct binary outcome from survival information
 cll_bin$srv5y_s[cll_bin$srv5y>12] <- 0  # Apply administrative censorship at t=12 months
 cll_bin$srv5y[cll_bin$srv5y>12]  <- 12
 cll_bin$Status[cll_bin$srv5y_s==1]<- 1  # Define the new binary "Status" outcome variable
@@ -48,7 +64,6 @@ cll_bin$Censor <- NULL # Remove survival outcomes
 cll_bin$srv5y <- NULL
 cll_bin$srv5y_s <- NULL
 
-set.seed(12345)
 # Predict observations 501 to 507 using the first 100 records to calibrate predictors
 # Apply prediction-averaging using 5 imputations
 output<-mipred(Status~perfstat+remstat+cyto, family=binomial, data=cll_bin[1:100,],

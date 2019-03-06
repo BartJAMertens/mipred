@@ -4,7 +4,7 @@
 \alias{.glm_mipred_cmb2}
 \title{Binary prediction using multiple imputation - Rubin's rule coefficient-averaging method}
 \usage{
-.glm_mipred_cmb2(formula, family, dataset, newdata, nimp)
+.glm_mipred_cmb2(formula, family, dataset, newdata, nimp, folds, miop)
 }
 \arguments{
 \item{formula}{Formula used by fitting and prediction method}
@@ -16,6 +16,10 @@
 \item{newdata}{A dataframe containing observations to be predicted}
 
 \item{nimp}{Number of imputations for each observation}
+
+\item{folds}{Number of folds defined in newdata}
+
+\item{miop}{Mice options}
 }
 \description{
 Binary prediction using multiple imputation - Rubin's rule coefficient-averaging method
