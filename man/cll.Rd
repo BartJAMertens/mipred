@@ -4,7 +4,7 @@
 \name{cll}
 \alias{cll}
 \title{CLL data}
-\format{A data frame with 694 rows and 11 variables:
+\format{A data frame with 694 rows and 11 variables. Each row describes the data from a single patient. The below described variables are included in the data file. Missing observations are present in the variables performance status(9\%), remission status (6\%) and cytogenic abnormality (25\%).
 \describe{
   \item{id}{record identifcation number}
   \item{age10}{age at transplantation}
@@ -19,12 +19,16 @@
   \item{srv5y_s}{censoring indicator (0=alive at end follow-up, 1=dead)}
 }}
 \source{
-\url{https://arxiv.org/abs/1810.05099}
+European Society for Blood and Marrow Transplantation (EBMT). \url{https://www.ebmt.org}
 }
 \usage{
 cll
 }
 \description{
-A dataset containing survival outcome and predictors on 694 patients.
+A dataset containing survival outcome and predictors on 694 patients who
+received hematopoietic stem cell transplant.
+}
+\references{
+Please reference the following papers when using this data. Schetelig, J. et al. (2017) Risk factors for treatment failure after allogeneic transplantation of patients with CLL: a report from the European Society for Blood and Marrow Transplantation. {Bone Marrow Transplantation},  52, 552-560. Schetelig, J. et al. (2017) Centre characteristics and procedure-related factors have an impact on outcomes of allogeneic transplantation for patients with CLL: a retrospective analysis from the European Society for Blood and Marrow Transplantation (EBMT). {British Journal of Haematology},  178, 521-533. Mertens, B.J.A. et al. (2019) Construction and assessment of prediction rules for binary outcome in the presence of missing predictor data using multiple imputation and cross-validation: theoretical perspective and data-based evaluation. {Biometrical Journal}. See ArXiv for an early version \url{https://arxiv.org/abs/1810.05099}.
 }
 \keyword{datasets}

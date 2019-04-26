@@ -2,8 +2,9 @@
 
 export(mipred)
 export(mipred.cv)
-export(mipred_old)
 importFrom(mice,complete)
 importFrom(mice,mice)
+importFrom(stats,as.formula)
 importFrom(stats,glm)
 importFrom(stats,model.matrix)
+importFrom(stats,predict.glm)

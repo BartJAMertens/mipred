@@ -4,8 +4,8 @@
 \alias{mipred}
 \title{Prediction using multiple imputation}
 \usage{
-mipred(formula, family, data, newdata, nimp, method = "averaging",
-  folds = NULL, mice.options = NULL)
+mipred(formula, family, data, newdata, nimp, folds = NULL,
+  method = "averaging", mice.options = NULL)
 }
 \arguments{
 \item{formula}{A formula object providing a symbolic description of the
@@ -25,27 +25,36 @@ the object.}
 
 \item{nimp}{Number of imputations used in the prediction of each observation.}
 
+\item{folds}{Number of fold-partitions defined within \code{newdata}.
+An integer from 1 to \code{m}. Defaults to NULL which internally
+sets \code{folds=m}, which puts each observation in \code{newdata}
+into its own singleton fold. The minimum value \code{folds=1}
+ would predict the entire set \code{newdata} in a single step without partitioning.}
+
 \item{method}{Imputation combination method. This defaults to
 \code{"averaging"} for the prediction-averaging approach. The alternative
 \code{"rubin"} applies the Rubin's rules pooled model.}
 
-\item{folds}{Number of folds defined within \code{newdata}.
-An integer from 1 to \code{nrow(newdata)}. Defaults to NULL which internally
-sets \code{folds=nrow(newdata)}, which puts each observation in \code{newdata}
-into its own singleton fold.}
-
-\item{mice.options}{Optional list containing arguments to be supplied to \code{mice}.
+\item{mice.options}{Optional list containing arguments to be supplied to \code{mice}. Refer to the \code{mice} documentation for details.
 The following options may be specified: \code{method}, \code{predictorMatrix}, \code{blocks},
 \code{visitSequence}, \code{formulas}, \code{blots}, \code{post}, \code{defaultMethod},
 \code{maxit}, \code{printFlag}, \code{seed}, \code{data.init}. Please refer to the
 \code{mice} documentation for the description of these options. To set the number
-of imputations \code{nimp} should be used. The \code{defaultMethod} is set to
+of imputations \code{nimp} should be used. \code{seed} may be specified as a numeric vector
+of length \code{nimp*folds} when \code{method} is set to \code{averaging} and of length \code{folds}
+when \code{method} is set to \code{rubin}. Setting \code{seed} to a vector will cause each next
+call to \code{mice} to use the next seed value in the vector. Setting the seed to a single
+numeric value will cause all instances of
+mice to use that same seed value. If you specify a seed vector of insufficient length
+then the values will be recycled. The required length is \code{folds*nimp} for the averaging
+approach and length \code{folds} for the rubin approach. The \code{defaultMethod} is set to
 \code{c("pmm", "logreg", "polyreg", "polr")} by default. The default setting for
 \code{printFlag} is FALSE. The default for \code{maxit} is 50. All other options are set
 to \code{NULL} by default.}
 }
 \value{
-A list containing predictions. \describe{ \item{\code{pred}}{Matrix
+A list containing predictions.
+\describe{ \item{\code{pred}}{Matrix
   of predictions on the scale of the response variable of dimension \code{m}
   by \code{nimp}.} \item{\code{linpred}}{Matrix of predictions on the scale
   of the linear predictor of dimension \code{m} by \code{nimp}.} }
@@ -55,7 +64,8 @@ Calculates predictions from generalized linear models when multiple
 imputations are used to account for missing values in predictor data.
 }
 \examples{
-cll_bin<-cll # Generate a copy of the cll data and construct binary outcome from survival information
+# Generate a copy of the cll data and construct binary outcome from survival information
+cll_bin<-cll
 cll_bin$srv5y_s[cll_bin$srv5y>12] <- 0  # Apply administrative censorship at t=12 months
 cll_bin$srv5y[cll_bin$srv5y>12]  <- 12
 cll_bin$Status[cll_bin$srv5y_s==1]<- 1  # Define the new binary "Status" outcome variable
@@ -64,10 +74,12 @@ cll_bin$Censor <- NULL # Remove survival outcomes
 cll_bin$srv5y <- NULL
 cll_bin$srv5y_s <- NULL
 
-# Predict observations 501 to 507 using the first 100 records to calibrate predictors
-# Apply prediction-averaging using 5 imputations
-output<-mipred(Status~perfstat+remstat+cyto, family=binomial, data=cll_bin[1:100,],
-  newdata=cll_bin[501:507,-10], nimp=5)
+# Predict observations 501 to 504 using the first 100 records to calibrate predictors
+# Remove the identification variable before prediction calibration and imputation.
+# Remove outcome for new observations
+# Apply prediction-averaging using 5 imputations, set mice option maxit=5
+output<-mipred(Status ~ age10+cyto, family=binomial, data=cll_bin[1:100,-1],
+  newdata=cll_bin[501:504,c(-1,-10)], nimp=5, mice.options=list(maxit=5))
 
 }
 \references{
