@@ -187,10 +187,17 @@ mipred <-
               any(mice.options[["seed"]] < 0)) {
             stop("in mice.options seed must be positive integer")
           } else{
-            mice.options[["seed"]] <-
-              matrix(mice.options[["seed"]],
-                nrow = folds * nimp,
-                ncol = 1)[, 1]
+            if (method == "rubin") {
+              mice.options[["seed"]] <-
+                matrix(mice.options[["seed"]],
+                  nrow = folds,
+                  ncol = 1)[, 1]
+            } else {
+              mice.options[["seed"]] <-
+                matrix(mice.options[["seed"]],
+                  nrow = folds * nimp,
+                  ncol = 1)[, 1]
+            }
           }
         }
       }
