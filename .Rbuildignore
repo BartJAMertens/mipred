@@ -2,4 +2,6 @@
 ^data-raw$
 ^.*\.Rproj$
 ^\.Rproj\.user$
-
+^cran-comments\.Rmd$
+^\.travis\.yml$
+^cran-comments\.md$

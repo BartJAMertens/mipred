@@ -2,7 +2,7 @@ Package: mipred
 Type: Package
 Title: Prediction using Multiple Imputation
 Version: 0.0.1.0001
-Authors@R: person("Bart", "Mertens", email = "b.mertens@lumc.nl",
+Authors@R: person("Bart J. A.", "Mertens", email = "b.mertens@lumc.nl",
                   role = c("aut", "cre"))
 Maintainer: Bart J. A. Mertens <b.mertens@lumc.nl>
 Description: Calibration of generalized linear models and Cox regression models for prediction using 
