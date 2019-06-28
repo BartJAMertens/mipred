@@ -15,7 +15,7 @@ Description: Calibration of generalized linear models and Cox regression models 
     which the predictions are derived are automatically imputed. We also include functionality 
     to carry out cross-validation. The present version is still in development and should support continuous, 
     binary and counting outcomes, but we have only checked performance for binary outcome logistic regression 
-    modeling. We will include and upload the Cox regression extension later.
+    modeling. We will include the Cox regression extension later.
 URL: https://github.com/BartJAMertens/mipred
 BugReports: https://github.com/BartJAMertens/mipred/issues
 Depends: R (>= 3.5.0)
