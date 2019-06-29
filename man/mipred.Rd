@@ -64,6 +64,7 @@ Calculates predictions from generalized linear models when multiple
 imputations are used to account for missing values in predictor data.
 }
 \examples{
+\dontrun{
 # Generate a copy of the cll data and construct binary outcome from survival information
 cll_bin<-cll
 cll_bin$srv5y_s[cll_bin$srv5y>12] <- 0  # Apply administrative censorship at t=12 months
@@ -77,9 +78,12 @@ cll_bin$srv5y_s <- NULL
 # Predict observations 501 to 504 using the first 100 records to calibrate predictors
 # Remove the identification variable before prediction calibration and imputation.
 # Remove outcome for new observations
-# Apply prediction-averaging using 5 imputations, set mice option maxit=5
+# Apply prediction-averaging using 5 imputations, set mice option maxit=5.
+# Note these settings are only for illustration and should be set to higher values for
+# practical use, particularly for nimp.
 output<-mipred(Status ~ age10+cyto, family=binomial, data=cll_bin[1:100,-1],
   newdata=cll_bin[501:504,c(-1,-10)], nimp=5, mice.options=list(maxit=5))
+}
 
 }
 \references{

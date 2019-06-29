@@ -6,8 +6,9 @@ Authors@R: person("Bart J. A.", "Mertens", email = "b.mertens@lumc.nl",
                   role = c("aut", "cre"))
 Maintainer: Bart J. A. Mertens <b.mertens@lumc.nl>
 Description: Calibration of generalized linear models and Cox regression models for prediction using 
-    multiple imputation to account for missing values in the predictors as described by Mertens, 
-    Banzato and de Wreede (2019). Imputations are generated using the package mice without using outcomes on 
+    multiple imputation to account for missing values in the predictors as described in the paper 
+    corresponding to this package which is referenced in the vignette.
+    Imputations are generated using the package mice without using outcomes on 
     observations for which the prediction is generated. Two options are provided to generate predictions. 
     The first is prediction-averaging of predictions calibrated from single models fitted on single imputed 
     datasets within a set of multiple imputations. The second is application of the Rubin's rules pooled model.

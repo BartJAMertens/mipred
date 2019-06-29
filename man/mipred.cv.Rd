@@ -58,6 +58,7 @@ generalized linear models with multiple imputations to account for missing value
 in predictor data.
 }
 \examples{
+\dontrun{
 # Generate a copy of the cll data and construct binary outcome from survival information
 cll_bin<-cll
 cll_bin$srv5y_s[cll_bin$srv5y>12] <- 0  # Apply administrative censorship at t=12 months
@@ -69,9 +70,12 @@ cll_bin$srv5y <- NULL
 cll_bin$srv5y_s <- NULL
 
 # Cross-validate prediction using logistic regression in the first 100 samples
-# Apply prediction-averaging using 5 imputations and 5 folds
+# Apply prediction-averaging using 5 imputations, 5 folds and maxit=5.
+# Note these settings are only for illustration and should be set to higher values for
+# practical use, particularly for nimp.
 output<-mipred.cv(Status ~ age10+cyto, family=binomial, data=cll_bin[1:100,-1],
 nimp=5, folds=5, mice.options=list(maxit=5))
+}
 
 }
 \references{
