@@ -3,9 +3,9 @@ title: "Using mipred for the analysis of binary outcome."
 author: "Bart J. A. Mertens"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+#toc: TRUE
 #output: rmarkdown::pdf_document
-toc: TRUE
-fig_caption: yes
+#fig_caption: yes
 bibliography: references.bib
 vignette: >
   %\VignetteIndexEntry{Using mipred for the analysis of binary outcome.}
@@ -26,13 +26,11 @@ This vignette is part of the R package `mipred`. It documents data analysis for 
 # Outlines and objectives
 The package `mipred` contains two basic functions.  The first is `mipred.cv`, which estimates cross-validated predictions when predictors contain missing values and using multiple imputation. The second is `mipred`,  which allows users to apply the same methodology to predict outcome for novel observations,  based on past calibration data.  Both the new observations, as well as the calibration data may contain mising observations in the predictor data. This document describes data analysis approaches using the `mipred` package functions for the above objectives. We first discuss cross-validation of prediction with `mipred.cv`, using both the `averaging` and `rubin` methods as described in the paper by [@BJAMertens2018] to estimate the expected prediction performance on future data.  We subsequently describe use of the `mipred` function to estimated predictions on new patient data, based on past data.  Finally, `mipred` package functionality and options are discussed.
 ```{r}
-#devtools::load_all(".")
 library(mipred)
 ```
 # Data preparation
 The CLL data is included in the `mipred` package as a data frame. Refer to the published paper (ref) for some more detail.  
 ```{r}
-#load(file="cll.rda")
 data(cll)
 head(cll)
 ```
