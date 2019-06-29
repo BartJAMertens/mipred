@@ -1,0 +1,14 @@
+---
+title: "NEWS"
+author: "Bart JA Mertens"
+date: "6/29/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# mipred 0.0.1.0001
+
+First release of the mipred package. Present version only supports analysis of continuous, binary and counting outcomes.  
