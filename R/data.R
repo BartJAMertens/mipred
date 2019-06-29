@@ -5,7 +5,7 @@
 #'
 #' @format A data frame with 694 rows and 11 variables. Each row describes the data from a single patient. The below described variables are included in the data file. Missing observations are present in the variables performance status(9\%), remission status (6\%) and cytogenic abnormality (25\%).
 #' \describe{
-#'   \item{id}{record identifcation number}
+#'   \item{id}{record identification number}
 #'   \item{age10}{age at transplantation}
 #'   \item{perfstat}{performance status indicated by the Karnofsky Index (four categories)}
 #'   \item{remstat}{remission status at transplantation (three categories)}

@@ -24,7 +24,7 @@ This vignette is part of the R package `mipred`. It documents data analysis for 
 
 
 # Outlines and objectives
-The package `mipred` contains two basic functions.  The first is `mipred.cv`, which estimates cross-validated predictions when predictors contain missing values and using multiple imputation. The second is `mipred`,  which allows users to apply the same methodology to predict outcome for novel observations,  based on past calibration data.  Both the new observations, as well as the calibration data may contain mising observations in the predictor data. This document describes data analysis approaches using the `mipred` package functions for the above objectives. We first discuss cross-validation of prediction with `mipred.cv`, using both the `averaging` and `rubin` methods as described in the paper by [@BJAMertens2018] to estimate the expected prediction performance on future data.  We subsequently describe use of the `mipred` function to estimated predictions on new patient data, based on past data.  Finally, `mipred` package functionality and options are discussed.
+The package `mipred` contains two basic functions.  The first is `mipred.cv`, which estimates cross-validated predictions when predictors contain missing values and using multiple imputation. The second is `mipred`,  which allows users to apply the same methodology to predict outcome for novel observations,  based on past calibration data.  Both the new observations, as well as the calibration data may contain missing observations in the predictor data. This document describes data analysis approaches using the `mipred` package functions for the above objectives. We first discuss cross-validation of prediction with `mipred.cv`, using both the `averaging` and `rubin` methods as described in the paper by [@BJAMertens2018] to estimate the expected prediction performance on future data.  We subsequently describe use of the `mipred` function to estimated predictions on new patient data, based on past data.  Finally, `mipred` package functionality and options are discussed.
 ```{r}
 library(mipred)
 ```
@@ -51,7 +51,7 @@ artificially.censored<-(cll_bin$Status==0 & cll_bin$srv5y<12)
 tableout <- table(artificially.censored,binary.outcome)
 tableout
 ```
-The percentage artifically censored is 100*`r tableout[2,1]`/`r sum(nrow(cll_bin))`=
+The percentage artificially censored is 100*`r tableout[2,1]`/`r sum(nrow(cll_bin))`=
 `r round(100*tableout[2,1]/sum(nrow(cll_bin)),1)`, with 
 694=465+184+45 the total sample size. There are 184 events corresponding to `r round(100*tableout[1,2]/sum(nrow(cll_bin)),1)` percent of the dataset.
 ```{r, echo=FALSE}
@@ -110,7 +110,7 @@ load(file = "predcv_av.rda")
 ```
 <!-- Note that the mice option maxit=10 is passed to the mice algorithm which performs the imputations and restricts the number of iterations for the generation of imputations to 10.    -->
 The above code implements cross-validation for the averaging approach as described in the paper by @BJAMertens2018. In brief, to generate 10 imputations, 10 copies of the data matrix are made and a separate (in this case 10-fold) fold-partition is defined for each matrix. In each matrix copy,  each fold is then considered in turn as a validation set (with the remainder of the data as calibration) and the outcomes are removed (artificially set to missing) in the left-out fold. 
-A single imputation is then generated on this data matrix. The (imputed) training potion of the data is then used to fit a (logistic regression) model,  which is applied to the imputed data in the left-out (training) fold.  This process is repeated for all folds. By applying the above calculation to all matrices,  we obtain 10 cross-validated predictions,  eahc on a single imputation (10 in total),  for each observation. 
+A single imputation is then generated on this data matrix. The (imputed) training potion of the data is then used to fit a (logistic regression) model,  which is applied to the imputed data in the left-out (training) fold.  This process is repeated for all folds. By applying the above calculation to all matrices,  we obtain 10 cross-validated predictions,  each on a single imputation (10 in total),  for each observation. 
 
 The returned object is a list containing three elements:  the function `call`, as well as the predictions on the response scale (fitted probabilities in this case, in matrix `pred`) and the linear predictor (`linpred`). The prediction method used is the averaging method by default. The two prediction matrices are each saved in a matrix with 694 rows by 10 columns, with each column containing prediction results based on the prediction model calibrated on a single imputation. Rows correspond to the observations in the data matrix, in same order. The cross-validation fold-definitions used are different from column to column in the averaging approach.  The function linking both matrices `pred`and `linpred` is the logit link (by default of the family specification `family = binomial`). 
 ```{r}
@@ -138,26 +138,26 @@ save(predcv_rb,file = "predcv_rb.rda")
 ```{r, echo=FALSE}
 load(file = "predcv_rb.rda")
 ```
-For both the "rubin" and "averaging" method, the above codes generate 10 predictions (1 for each imputation, of which we have 10 in total).  With the averaging method, these will typically differ, because a separate prediction model is generated for any left-out datum based on each single-imputed dataset. The "rubin" approach uses the pooled model as single prediction model. Nevertheless, any record to be predicted which itself contains missing data will also be imputed. Thus, there will generally also be 10 distinct predictions for such observations with the (pooled) rubin approach.  Records which are fully observed will have the same predictions accross all imputations as we are applying the same  - pooled - model on the same fully observed record of predictors. 
+For both the "rubin" and "averaging" method, the above codes generate 10 predictions (1 for each imputation, of which we have 10 in total).  With the averaging method, these will typically differ, because a separate prediction model is generated for any left-out datum based on each single-imputed dataset. The "rubin" approach uses the pooled model as single prediction model. Nevertheless, any record to be predicted which itself contains missing data will also be imputed. Thus, there will generally also be 10 distinct predictions for such observations with the (pooled) rubin approach.  Records which are fully observed will have the same predictions across all imputations as we are applying the same  - pooled - model on the same fully observed record of predictors. 
 ```{r}
 head(predcv_rb$pred)
 ```
 ```{r}
 head(predcv_rb$linpred)
 ```
-Note how in the above prediction matrices `pred` and `linpred` the entries in rows 2-4 are the same for all 10 predictions,  because these prediction are calculated from the same pooled model on observations which do not contain misisng values. Observations 1, 5 and 6 however do contain misisng values and hence,  the imputations for these missing data also change across the 10 predictions, even though the prediction model itself is fixed.. 
+Note how in the above prediction matrices `pred` and `linpred` the entries in rows 2-4 are the same for all 10 predictions,  because these prediction are calculated from the same pooled model on observations which do not contain missing values. Observations 1, 5 and 6 however do contain misisng values and hence,  the imputations for these missing data also change across the 10 predictions, even though the prediction model itself is fixed.. 
 The final prediction for any record can be obtained by taking averages, medians or other suitable statistic across the distinct predictions.  Here we use means for example,  but other applications may well required another combination.
 ```{r}
 predfinal_av <- apply(predcv_av$pred,1,mean)
 predfinal_rb <- apply(predcv_rb$pred,1,mean)
 ```
-We can investigate some plots to get a feel for the calibrated predictions.  Before proceeding, we first generate a missingness indicator for each observation, to distinguish predictions on fully observed records from those on records containg missing values, in tables and figures.  
+We can investigate some plots to get a feel for the calibrated predictions.  Before proceeding, we first generate a missingness indicator for each observation, to distinguish predictions on fully observed records from those on records containing missing values, in tables and figures.  
 ```{r}
 missrownrs<-sort(unique (unlist (lapply (cll_bin, function (x) which (is.na (x))))))
 miss  <- matrix(0, nrow=nrow(cll_bin), ncol=1)
 miss[missrownrs]<-1
 ```
-The below figure plots the combined predictions versus the status outcome and also compares predictions between the averaging and rubin combination method. Plotted predictions are colored red for observations containing missing predictor data and black otherwise. In the second row of plots,  the left-most figure plots predictions from the rubin method versus those from the averaging approach. The second right-most figure, plots differences between predictions from  both approaches versus the averaged predictions obtained from both the rubin and avaraging method.
+The below figure plots the combined predictions versus the status outcome and also compares predictions between the averaging and rubin combination method. Plotted predictions are colored red for observations containing missing predictor data and black otherwise. In the second row of plots,  the left-most figure plots predictions from the rubin method versus those from the averaging approach. The second right-most figure, plots differences between predictions from  both approaches versus the averaged predictions obtained from both the rubin and averaging method.
 ```{r, fig.height=8, fig.width=8, fig.cap="Predicted values from the `averaging` and `rubin` method based on 10 imputations"}
 par(mfrow=c(2,2),pty="s")
 boxplot(predfinal_av~cll_bin$Status)
@@ -394,7 +394,7 @@ matpoints(avcv_means3[miss==0],
   col=1,pch=1)
 ```
 
-We observe prediction on partially observed records to have lower levels of (between-replication) variation as compared to prediction on fully observed data. Variation reduces substantially when the numbers of impuattaions used are increased. Observation with mean predicted probabailites close to either 0 or 1 have lower between-replication variation.
+We observe prediction on partially observed records to have lower levels of (between-replication) variation as compared to prediction on fully observed data. Variation reduces substantially when the numbers of imputations used are increased. Observation with mean predicted probabilities close to either 0 or 1 have lower between-replication variation.
 
 
 
@@ -465,7 +465,7 @@ matpoints(rbcv_means3[miss==0],
   col=1,pch=1)
 ```
 
-We again observe prediction on partially observed records to have lower levels of (between-replication) variation as compared to prediction on fully observed data. Variation reduces substantially when the numbers of imputations used are increased. Observation with mean predicted probabailites close to either 0 or 1 have lower between-replication variation. Note however that the dispersal seem to be larger as compared to results from the averaging method and this effect is particullary noticeable for the higher numbers of imputations.
+We again observe prediction on partially observed records to have lower levels of (between-replication) variation as compared to prediction on fully observed data. Variation reduces substantially when the numbers of imputations used are increased. Observation with mean predicted probabailites close to either 0 or 1 have lower between-replication variation. Note however that the dispersal seem to be larger as compared to results from the averaging method and this effect is particularly noticeable for the higher numbers of imputations.
 
 
 
@@ -819,7 +819,7 @@ head(pred_rb$pred)
 
 ## Summarize the generated predictions using plots and summary measures
 
-Calculate summary prediction per individual for each approachby calculating the mean across predictions within individual.
+Calculate summary prediction per individual for each approach by calculating the mean across predictions within individual.
 ```{r}
 av_means <- apply(pred_av[[2]],1,mean)
 rb_means <- apply(pred_rb[[2]],1,mean)
@@ -885,7 +885,7 @@ pred_av <-
     folds = 1
   )
 ```
-Note that in this case however,  the use of the `-1` notation to deselect the first column (containing the patient identifier) becomes esential,  as otherwise it will automatically be added to the model as a predictor. 
+Note that in this case however,  the use of the `-1` notation to deselect the first column (containing the patient identifier) becomes essential,  as otherwise it will automatically be added to the model as a predictor. 
 
 ## Transformations
 A special application of formulae which is allowed in `mipred` is the use of transformations in the prediction of outcome.  Imagine for example that in the immediately preceding model,  we feel a quadratic transform is required for `age10`. This could be achieved by specifying the code as
@@ -906,7 +906,7 @@ If desired,  compatible models can be specified through use of the `mice.options
 
 
 ## Distinct predictors between the prediction and imputation models
-In the above analysis and code,  the full set of predictors is used for both the calibration of the prediction models  as well as for the estimation of the imputations. Furthermore,  the predictors are entered as a simple linear combination (on associated dummy variates for the categorical measures) in the estimation of the prediction model. The `mipred` package however allows for considerable flexibility in specifcation of both the imputation models as well as for the dependence of prediction models on the available predictors. 
+In the above analysis and code,  the full set of predictors is used for both the calibration of the prediction models  as well as for the estimation of the imputations. Furthermore,  the predictors are entered as a simple linear combination (on associated dummy variates for the categorical measures) in the estimation of the prediction model. The `mipred` package however allows for considerable flexibility in specification of both the imputation models as well as for the dependence of prediction models on the available predictors. 
 
 For example, if for some reason we would only wish to calibrate regression models on `age10`, `remstat` and `cyto`, while retaining all other predictors for use in the estimation of imputations,  then this is simply achieved by specifying
 ```{r, message=FALSE, eval=FALSE}

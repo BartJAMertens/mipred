@@ -36,7 +36,7 @@ You may need to install and load the devtools package first before using the abo
 
 ## Example
 
-Please refer to the example included with the package
+Please refer to the example included with the package.  The package also includes a vignette which documents use for binary outcome data.
 
 <!-- This is a basic example which shows you how to solve a common problem: -->
 
