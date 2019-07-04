@@ -7,6 +7,14 @@
 #' @param nimp Number of imputations for each observation
 #' @param folds Number of folds defined in newdata
 #' @param miop Mice options
+#'
+#' @note This is an internal 'mipred' function and not intended to be called directly
+#'
+#' @return A list containing predictions.
+#' \describe{ \item{\code{pred}}{Matrix
+#'   of predictions on the scale of the response variable of dimension \code{m}
+#'   by \code{nimp}.} \item{\code{linpred}}{Matrix of predictions on the scale
+#'   of the linear predictor of dimension \code{m} by \code{nimp}.} }
 
 .glm.mipred.cmb1 <-
   function(formula,
@@ -39,7 +47,7 @@
         lengthfold <- length(folddef[[k]])
 
         imp_data <-
-          impute(combdat, miop, 1, miop[["seed"]][k + (m - 1) * folds])
+          .impute(combdat, miop, 1, miop[["seed"]][k + (m - 1) * folds])
         data_compl <-
           complete(imp_data, 1)  # select the completed model data
 
@@ -76,6 +84,14 @@
 #' @param nimp Number of imputations for each observation
 #' @param folds Number of folds defined in newdata
 #' @param miop Mice options
+#'
+#' @note This is an internal 'mipred' function and not intended to be called directly
+#'
+#' @return A list containing predictions.
+#' \describe{ \item{\code{pred}}{Matrix
+#'   of predictions on the scale of the response variable of dimension \code{m}
+#'   by \code{nimp}.} \item{\code{linpred}}{Matrix of predictions on the scale
+#'   of the linear predictor of dimension \code{m} by \code{nimp}.} }
 
 .glm.mipred.cmb2 <-
   function(formula,
@@ -117,7 +133,7 @@ newdata <-
         array(NA, dim = c(lengthfold, modeldim, nimp)) # Initialize array to store imputed validation folds across imputations
 
       # Compute MI with m=nimp in the whole dataset, run an imputation with m = nimp, use previously generated options
-      imp_data <- impute(combdat, miop, nimp, miop[["seed"]][k])
+      imp_data <- .impute(combdat, miop, nimp, miop[["seed"]][k])
 # print(imp_data$loggedEvents) change to Verbose option
 
       for (m in 1:nimp) {
@@ -167,8 +183,12 @@ newdata <-
 #' @param miop Mice options list
 #' @param nimp Number of imputations
 #' @param seed Single numerical seed value
+#'
+#' @note This is an internal 'mipred' function and not intended to be called directly
+#'
+#' @return A 'mice' object containing imputations
 
-impute <- function(combdat, miop, nimp, seed) {
+.impute <- function(combdat, miop, nimp, seed) {
   mioppredictorMatrix <- is.null(miop$predictorMatrix)
   miopblocks <- is.null(miop$blocks)
   miopformulas <- is.null(miop$formulas)
@@ -346,6 +366,10 @@ impute <- function(combdat, miop, nimp, seed) {
 #' Expit function converting odds to probability
 #'
 #' @param x Probability vector
+#'
+#' @note This is an internal 'mipred' function and not intended to be called directly
+#'
+#' @return The expit transform of x (inverse logit)
 
 .expit <- function(x) {
   exp(x) / (1 + exp(x))

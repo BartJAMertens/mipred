@@ -3,9 +3,9 @@ title: "Using mipred for the analysis of binary outcome."
 author: "Bart J. A. Mertens"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
-#toc: TRUE
+# toc: TRUE
+#  fig_caption: yes
 #output: rmarkdown::pdf_document
-#fig_caption: yes
 bibliography: references.bib
 vignette: >
   %\VignetteIndexEntry{Using mipred for the analysis of binary outcome.}
@@ -90,7 +90,7 @@ summary(cll_bin)
 
 # Model assessment via internal validation 
 ## Estimate predictive performance using mipred.cv functions
-We first estimate prediction results using internal validation on the cll_bin data, using all predictors and running 10-fold cross-validation with 10 imputations for each prediction. Note the `-1` notation in `cll_bin[,-1]` is to remove the 
+We first estimate prediction results using internal validation on the cll_bin data, using all predictors and running 10-fold cross-validation (argument `folds`) with 10 imputations (argument `nimp`) for each prediction. Note the `-1` notation in `cll_bin[,-1]` is to remove the 
 first column containing the observation identification number.
 ```{r, message=FALSE, eval=FALSE}
 predcv_av <-
@@ -145,8 +145,8 @@ head(predcv_rb$pred)
 ```{r}
 head(predcv_rb$linpred)
 ```
-Note how in the above prediction matrices `pred` and `linpred` the entries in rows 2-4 are the same for all 10 predictions,  because these prediction are calculated from the same pooled model on observations which do not contain missing values. Observations 1, 5 and 6 however do contain misisng values and hence,  the imputations for these missing data also change across the 10 predictions, even though the prediction model itself is fixed.. 
-The final prediction for any record can be obtained by taking averages, medians or other suitable statistic across the distinct predictions.  Here we use means for example,  but other applications may well required another combination.
+Note how in the above prediction matrices `pred` and `linpred` the entries in rows 2-4 are the same for all 10 predictions,  because these prediction are calculated from the same pooled model on observations which do not contain missing values. Observations 1, 5 and 6 however do contain missing values and hence,  the imputations for these missing data also change across the 10 predictions, even though the prediction model itself is fixed.
+The final prediction for any record can be obtained by taking averages, medians or other suitable statistic across the distinct predictions.  Here we use means for example,  but other applications may well require another combination.
 ```{r}
 predfinal_av <- apply(predcv_av$pred,1,mean)
 predfinal_rb <- apply(predcv_rb$pred,1,mean)
@@ -205,7 +205,7 @@ for (counter in 1:3) {
 ```{r, echo=FALSE, message=FALSE, eval=FALSE}
 save(repslist_av,file = "repslist_av.rda")
 ```
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval=FALSE}
 load(file = "repslist_av.rda")
 ```
 <!-- # ```{r} -->
@@ -237,7 +237,7 @@ for (counter in 1:3) {
 ```{r, echo=FALSE, message=FALSE, eval=FALSE}
 save(repslist_rb,file = "repslist_rb.rda")
 ```
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval=FALSE}
 load(file = "repslist_rb.rda")
 ```
 <!-- # ```{r} -->
@@ -255,7 +255,7 @@ load(file = "repslist_rb.rda")
 <!-- # repslist_av[[3]] <- matrix(runif(100*100),nrow=100) -->
 <!-- # repslist_rb <- repslist_av -->
 <!-- # ``` -->
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval=FALSE}
 # remove this later - substitute for analysis results
 repslist_av <- repslist_av[c(1,10,100)]
 repslist_rb <- repslist_rb[c(1,10,100)]
@@ -263,13 +263,19 @@ repslist_rb <- repslist_rb[c(1,10,100)]
 <!-- Then;  what don't we know yet?  How many imps to use?  Run replicates.  Make pics of vars and briers... -->
 ## Summarize results using plots
 We first investigate the averaging method. 
-To investigate the spread of individual predictions,  calculated from models on a single imputation, we first plot the these constituent (individual) predictions (from repslist_av) versus the combined predictions (the means) for the averaging method.  Use distinct plotting symbols for predictions based on fully observed records versus records that contained missing values. Use only the first replicate from `m=100`.
+To investigate the spread of individual predictions,  calculated from models on a single imputation, we first plot the these constituent (individual) predictions (from repslist_av) versus the combined predictions (the means) for the averaging method.  Use distinct plotting symbols for predictions based on fully observed records versus records that contained missing values. Use only the first replicate from `nimp=100` (the third component of `repslist_av`,  corresponding to results for 100 imputations.
 Calculate the final prediction for each patient for this replicate by combining the individual predictions using means.
-```{r}
+```{r, eval=FALSE}
 avcv_mean3 <- apply(repslist_av[[3]][,,1],1,mean) # one hundred imputations 
 ```
+```{r, echo=FALSE, message=FALSE, eval=FALSE}
+save(avcv_mean3,file = "avcv_mean3.rda")
+```
+```{r, echo=FALSE, eval=FALSE}
+load(file = "avcv_mean3.rda")
+```
 Now make the plot.
-```{r, fig.height=6, fig.width=9}
+```{r, fig.height=6, fig.width=9, eval=FALSE}
 par(mfrow=c(1,2),pty="s")
 matplot(avcv_mean3,repslist_av[[3]][,,1],pch=19,type="n",
   xlab="ordered mean probability",ylab="individual imputed predictions")
@@ -288,17 +294,32 @@ matpoints(avcv_mean3[miss==0],
     avcv_mean3[miss==0]%*%matrix(1,nrow=1,ncol=ncol(repslist_av[[3]][,,1])),
   col=1,pch=1)
 ```
+
+```{r, out.width='100%', fig.align='center', echo=FALSE}
+knitr::include_graphics('fig_av_100.png')
+```
+
+
+
+
+
 The left plot shows individual predictions (from single-imputation-based models) versus the mean prediction.  The right plot shows mean-centered predictions versus mean prediction. As can be seen, the individual predictions have very high levels of variation (around the mean prediction). Predictions on (partially missing records - plotted red) are much more variable than those on fully-observed records. Variation tends to decrease as the mean prediction approaches either 0 or 1.  
 
-Now investigate the Rubin method results in the same manner. Again only consider a single replication for `m=100`. 
-Plot the constituent (individual) predictions (from repslist_rb) versus the combined predictions (the means) for the rubin method.  Use distinct plotting symbols for predictions based on fully observed records versus records that contained missing values. We use the first replicate from `m=100`.
+Now investigate the Rubin method results in the same manner. Again only consider a single replication for `nimp=100`. 
+Plot the constituent (individual) predictions (from repslist_rb) versus the combined predictions (the means) for the rubin method.  Use distinct plotting symbols for predictions based on fully observed records versus records that contained missing values. 
 
 First, calculate the final prediction for each patient for this replicate by combining the individual predictions using means.
-```{r}
+```{r, eval=FALSE}
 rbcv_mean3 <- apply(repslist_rb[[3]][,,1],1,mean)
 ```
+```{r, echo=FALSE, message=FALSE, eval=FALSE}
+save(rbcv_mean3,file = "rbcv_mean3.rda")
+```
+```{r, echo=FALSE, eval=FALSE}
+load(file = "rbcv_mean3.rda")
+```
 Now make the plots.
-```{r, fig.height=6, fig.width=9}
+```{r, fig.height=6, fig.width=9, eval=FALSE}
 par(mfrow=c(1,2),pty="s")
 matplot(rbcv_mean3,repslist_rb[[3]][,,1],pch=19,type="n",
   xlab="ordered mean probability",ylab="individual imputed predictions")
@@ -318,22 +339,26 @@ matpoints(rbcv_mean3[miss==0],
     rbcv_mean3[miss==0]%*%matrix(1,nrow=1,ncol=ncol(repslist_rb[[3]][,,1])),
   col=1,pch=1)
 ```
-The left plot shows individual predictions (from the Rubin-rule pooled model on each of the [possibly imputed] records) versus the mean prediction.  The right plot shows mean-centered predictions versus mean prediction. As can be seen, the individual predictions have very high levels of variation (around the mean level) when predicting on records which are partially observed (contain missing values). Note how there is no variability in predictions on fully-observed records now between the imputations, because we are predicting from a single pooled model. Predictions on (partially missing records - plotted red) are however variable because we also need to impute the missing data each time we want to predict (so there are `m=100` distinct predictions in that case).  Variation tends to decrease as the mean prediction approaches either 0 or 1.  
+
+```{r, out.width='100%', fig.align='center', echo=FALSE}
+knitr::include_graphics('fig_rb_100.png')
+```
+The left plot shows individual predictions (from the Rubin-rule pooled model on each of the [possibly imputed] records) versus the mean prediction.  The right plot shows mean-centered predictions versus mean prediction. As can be seen, the individual predictions have very high levels of variation (around the mean level) when predicting on records which are partially observed (contain missing values). Note how there is no variability in predictions on fully-observed records now between the imputations, because we are predicting from a single pooled model. Predictions on (partially missing records - plotted red) are however variable because we also need to impute the missing data each time we want to predict (so there are `nimp=100` distinct predictions in that case).  Variation tends to decrease as the mean prediction approaches either 0 or 1.  
 
 
 
 
-Next we study the differences (variation) between the predictions obtained from the averaging method when generating replicates of the prediction,  calculated from the same number of imputations,  but with distinct imputations. We repeat this analysis for `m=1`, `m=10` and `m=100`. In other words,  we replicate the prediction analysis and investigate the impact of the umber of imputations used on the stability of the prediction. 
+Next we study the differences (variation) between the predictions obtained from the averaging method when generating replicates of the prediction,  calculated from the same number of imputations,  but with distinct imputations. We repeat this analysis for `nimp=1`, `nimp=10` and `nimp=100` imputations. In other words,  we replicate the prediction analysis and investigate the impact of increasing the number of imputations used on the stability of the prediction. 
 
 In the below plots, the top row of plots show the replicated predictions versus the mean prediction. The bottom row of plots displays the mean-centered replicate predictions versus mean prediction.
 First calculate the mean across all imputations and replications.
-```{r}
+```{r, eval=FALSE}
 avcv_means1 <- apply(repslist_av[[1]],1,mean) # one imputation
 avcv_means2 <- apply(repslist_av[[2]],1,mean) # ten imputations
 avcv_means3 <- apply(repslist_av[[3]],1,mean) # one hundred imputations 
 ```
 Now make the plots. 
-```{r, fig.height=6, fig.width=9}
+```{r, fig.height=6, fig.width=9, eval=FALSE}
 par(mfrow=c(2,3),pty="s")
 matplot(avcv_means1,apply(repslist_av[[1]],c(1,3),mean),pch=19,type="n",
   xlab="ordered mean probability",ylab="individual imputed predictions")
@@ -394,19 +419,23 @@ matpoints(avcv_means3[miss==0],
   col=1,pch=1)
 ```
 
+```{r, out.width='100%', fig.align='center', echo=FALSE}
+knitr::include_graphics('fig_av_means.png')
+```
+
 We observe prediction on partially observed records to have lower levels of (between-replication) variation as compared to prediction on fully observed data. Variation reduces substantially when the numbers of imputations used are increased. Observation with mean predicted probabilities close to either 0 or 1 have lower between-replication variation.
 
 
 
 Next investigate the dispersal between the predictions for replicates of the analyses with different number of imputations used,  for the rubin method. Top row of plots is replicate predictions versus the mean prediction. Bottom row of plot is mean-centered replicate predictions versus mean prediction.
 First calculate the mean across all imputations and replications.
-```{r}
+```{r, eval=FALSE}
 rbcv_means1 <- apply(repslist_rb[[1]],1,mean)
 rbcv_means2 <- apply(repslist_rb[[2]],1,mean)
 rbcv_means3 <- apply(repslist_rb[[3]],1,mean)
 ```
 Now make the plots. 
-```{r, fig.height=6, fig.width=9}
+```{r, fig.height=6, fig.width=9, eval=FALSE}
 par(mfrow=c(2,3),pty="s")
 matplot(rbcv_means1,apply(repslist_rb[[1]],c(1,3),mean),
   pch=19,type="n",xlab="ordered mean probability",ylab="individual imputed predictions")
@@ -465,7 +494,11 @@ matpoints(rbcv_means3[miss==0],
   col=1,pch=1)
 ```
 
-We again observe prediction on partially observed records to have lower levels of (between-replication) variation as compared to prediction on fully observed data. Variation reduces substantially when the numbers of imputations used are increased. Observation with mean predicted probabailites close to either 0 or 1 have lower between-replication variation. Note however that the dispersal seem to be larger as compared to results from the averaging method and this effect is particularly noticeable for the higher numbers of imputations.
+```{r, out.width='100%', fig.align='center', echo=FALSE}
+knitr::include_graphics('fig_rb_means.png')
+```
+
+We again observe prediction on partially observed records to have lower levels of (between-replication) variation as compared to prediction on fully observed data. Variation reduces substantially when the numbers of imputations used are increased. Observation with mean predicted probabilities close to either 0 or 1 have lower between-replication variation. Note however that the dispersal seem to be larger as compared to results from the averaging method and this effect is particularly noticeable for the higher numbers of imputations.
 
 
 
@@ -504,7 +537,7 @@ resmat
 
 Now apply the function to the replicated results from the averaging approach and combine the 
 summary measures in a matrix. Multiply all statistics by a factor 100 so they can be read at percentage scale.
-```{r}
+```{r, echo=TRUE, message=FALSE, eval=FALSE}
 R1.av <- R.statistic(apply(repslist_av[[1]],c(1,3),mean),miss)
 R2.av <- R.statistic(apply(repslist_av[[2]],c(1,3),mean),miss)
 R3.av <- R.statistic(apply(repslist_av[[3]],c(1,3),mean),miss)
@@ -514,16 +547,32 @@ Rstat.av <-
 Rstat.av.miss <- t(Rstat.av[c(1,3,5),1]) 
 Rstat.av.obsv <- t(Rstat.av[c(2,4,6),1])
 ```
+```{r, echo=FALSE, message=FALSE, eval=FALSE}
+save(Rstat.av,file = "Rstat_av.rda")
+```
+```{r, echo=FALSE}
+load(file = "Rstat_av.rda")
+Rstat.av.miss <- t(Rstat.av[c(1,3,5),1]) 
+Rstat.av.obsv <- t(Rstat.av[c(2,4,6),1])
+```
 
 Now do the same for the replicated results from the rubin approach and combine the 
 summary measures in a matrix. Multiply all statistics by a factor 100 so they can be read at percentage scale.
-```{r}
+```{r, echo=TRUE, message=FALSE, eval=FALSE}
 R1.rb <- R.statistic(apply(repslist_rb[[1]],c(1,3),mean),miss)
 R2.rb <- R.statistic(apply(repslist_rb[[2]],c(1,3),mean),miss)
 R3.rb <- R.statistic(apply(repslist_rb[[3]],c(1,3),mean),miss)
 # Make percentages
 Rstat.rb <- 
   rbind(R1.rb, R2.rb, R3.rb)*matrix(rep(c(100,100,100,100,1,1,100),6),byrow=T,ncol=7) 
+Rstat.rb.miss <- t(Rstat.rb[c(1,3,5),1])
+Rstat.rb.obsv <- t(Rstat.rb[c(2,4,6),1])
+```
+```{r, echo=FALSE, message=FALSE, eval=FALSE}
+save(Rstat.rb,file = "Rstat_rb.rda")
+```
+```{r, echo=FALSE}
+load(file = "Rstat_rb.rda")
 Rstat.rb.miss <- t(Rstat.rb[c(1,3,5),1])
 Rstat.rb.obsv <- t(Rstat.rb[c(2,4,6),1])
 ```
@@ -620,7 +669,7 @@ resmat
 }
 ```
 
-```{r, warning=FALSE, error=FALSE}
+```{r, warning=FALSE, error=FALSE, eval=FALSE}
 B1.av <- Briers(cll_bin$Status, apply(repslist_av[[1]],c(1,3),mean),miss)
 B2.av <- Briers(cll_bin$Status, apply(repslist_av[[2]],c(1,3),mean),miss)
 B3.av <- Briers(cll_bin$Status, apply(repslist_av[[3]],c(1,3),mean),miss)
@@ -632,6 +681,18 @@ B3.rb <- Briers(cll_bin$Status, apply(repslist_rb[[3]],c(1,3),mean),miss)
 Brier.av <- 100*rbind(B1.av, B2.av, B3.av) # Make percentages
 Brier.rb <- 100*rbind(B1.rb, B2.rb, B3.rb) # Make percentages
 ```
+```{r, echo=FALSE, message=FALSE, eval=FALSE}
+save(Brier.av,file = "Brier_av.rda")
+save(Brier.rb,file = "Brier_rb.rda")
+```
+```{r, echo=FALSE}
+load(file = "Brier_av.rda")
+load(file = "Brier_rb.rda")
+```
+
+
+
+
 
 Brier/AUC results as table - for approach 1,  averaging
 ```{r}
@@ -651,7 +712,7 @@ Standard deviations are shown for 10 replicate analyses.
   All statistics were multiplied by 100.")
 ```
 
-Make plots of Brier scores for both averaging (plotting symbol `1') and rubin (plotting symbol `2') approach 
+Make plots of Brier scores for both averaging (plotting symbol '1') and rubin (plotting symbol '2') approach 
 versus number of imputations. In the top row of plots,  we redraw the y-axis to fit the range of scores for each plot. The bottom row of plots shows exactly the same data,  but with y-axes fixed to the range [17,21]. 
 ```{r, fig.height=6, fig.width=9}
 par(mfrow=c(2,3),pty="s")
@@ -724,7 +785,7 @@ box()
 title("Fully observed data")
 ```
 
-We can see from the top row of plots that there are small reductions in Brier score as the number of imputations increase,  but these are small. The bottom row of plots shows that Brier scores barely reduce as number of imputations increase. Predictions generated on records containing mising data (left plots) have higher Brier scores and predictions on fully observed records (right plots) have the lowest.  Brier scores calculated across all data (middle plots) are in between those for fully and partially observed records.  
+We can see from the top row of plots that there are small reductions in Brier score as the number of imputations increase,  but these are small. The bottom row of plots shows that Brier scores barely reduce as number of imputations increase. Predictions generated on records containing missing data (left plots) have higher Brier scores and predictions on fully observed records (right plots) have the lowest.  Brier scores calculated across all data (middle plots) are in between those for fully and partially observed records.  
 
 <!-- ## Estimate required number of imputations for optimal predictive performance -->
 <!-- Try to predict number of imps to use based on m=1 based predictions? -->
@@ -770,7 +831,7 @@ head(cll_bin_new)
 ```
 
 ## Prediction calibration using both approaches
-Predictions can be easily obtained using either of both models, either the averaging or rubin model, as follows. For the averaging-based prediction model we just write
+Predictions can be easily obtained using either of both model approaches, either the averaging or rubin model, as follows. As our previous assessment of the predictive potential has shown that the maximum number of imputations (100) are required to achieve minimum variation for the averaging approach within the range investigated (`nimp`=1 to 100),  we will choose `nimp=100` throughout in this section. (We leave the issue of whether even higher numbers of imputations could further reduce variation for subsequent research.) For the averaging-based prediction model we just write
 ```{r, message=FALSE, eval=FALSE}
 pred_av <-
   mipred(
@@ -888,7 +949,7 @@ pred_av <-
 Note that in this case however,  the use of the `-1` notation to deselect the first column (containing the patient identifier) becomes essential,  as otherwise it will automatically be added to the model as a predictor. 
 
 ## Transformations
-A special application of formulae which is allowed in `mipred` is the use of transformations in the prediction of outcome.  Imagine for example that in the immediately preceding model,  we feel a quadratic transform is required for `age10`. This could be achieved by specifying the code as
+A special application of formulae which is allowed in `mipred` is the use of transformations in the prediction of outcome.  Imagine for example that in the immediately preceding model,  we feel a quadratic transform is required for `age10` and that we only need to consider the `age`, `gender` and `cyto effect`. This could be achieved by specifying the code as
 ```{r, message=FALSE, eval=FALSE}
 predcv_av <-
   mipred.cv(
@@ -899,14 +960,14 @@ predcv_av <-
     folds = 10
   )
 ```
-This does however raise the interesting question whether the outcome prediction models and imputation model for outcome used internally by mipred should be compatible. In the above example,  `mipred` uses the quadratic term for `age10` when calibrating  the outcome models.  The imputation models will however remain completely unaffected and identical to those used in the previous model, unless we explicitly force `mipred` to employ the quadratic transform for `age10` for imputations as well. `Mipred` does not enforce compatibility  and it is possible to have full flexibility between both. We anticipate however that it will be problematic for most applications to have distinct models for prediction and outcome imputation,  so this aspect should be given some thought in practical applications.  
+This does however raise the interesting question whether the outcome prediction models and imputation model for outcome used internally by mipred should be compatible. In the above example,  `mipred` uses the quadratic term for `age10` when calibrating  the outcome models.  The imputation models will however remain completely unaffected and identical to those used in the previous model, unless we explicitly force `mipred` to employ the quadratic transform for `age10` for imputations as well. `Mipred` does not enforce compatibility  and it is possible to have full flexibility between both. We anticipate however that it will be problematic for most applications to have distinct and/or incompatible models for prediction and outcome imputation,  so this aspect should be given some thought in practical applications.  
 
-If desired,  compatible models can be specified through use of the `mice.options` when calling either `mipred` or `mipred.cv`,  specifically the options `formulas`, `blocks` and `predictorMatrix`. Note that similar concerns apply  when including additional interactions, log-transforms and so on. Likewise,   although not impossible with the software, it is actually ill advised to exclude predictors from the imputation models when these were previously used in the prediction of the outcome for same reasons. 
+If desired,  compatible models can be specified through use of the `mice.options` when calling either `mipred` or `mipred.cv`,  specifically the options `formulas`, `blocks` and `predictorMatrix`. Note that similar concerns apply  when including additional interactions, log-transforms and so on. Likewise,   although not impossible with the software, it is actually ill-advised to exclude predictors from the imputation models when these were previously used in the prediction of the outcome for same reasons. 
 
 
 
 ## Distinct predictors between the prediction and imputation models
-In the above analysis and code,  the full set of predictors is used for both the calibration of the prediction models  as well as for the estimation of the imputations. Furthermore,  the predictors are entered as a simple linear combination (on associated dummy variates for the categorical measures) in the estimation of the prediction model. The `mipred` package however allows for considerable flexibility in specification of both the imputation models as well as for the dependence of prediction models on the available predictors. 
+In the analysis and code shown in the previous section,  the full set of predictors is used for both the calibration of the prediction models  as well as for the estimation of the imputations. Furthermore,  the predictors are entered as a simple linear combination (on associated dummy variates for the categorical measures) in the estimation of the prediction model. The `mipred` package however allows for considerable flexibility in specification of both the imputation models as well as for the dependence of prediction models on the available predictors. 
 
 For example, if for some reason we would only wish to calibrate regression models on `age10`, `remstat` and `cyto`, while retaining all other predictors for use in the estimation of imputations,  then this is simply achieved by specifying
 ```{r, message=FALSE, eval=FALSE}
@@ -923,15 +984,15 @@ for cross-validation and similarly, in the estimation of predictions on future o
 
 It is of interest to note that with a single outcome and when there are `p` predictors in total, of which `k` predictors contain missing values ($k \le p$), `mipred` does not calculate a single prediction model.  Rather, it calibrates the final prediction model as well as `k+1` imputation models (thus k+2 models in total). The reason that `k+1` imputation models are fit in full generality is that - for `mipred.cv` for example - outcomes are artifically set to missing in the cross-validation when generating imputations on the set-aside validation folds. Thus, an additional imputation model is required for the outcome.  Imputations for outcomes are only used when imputing predictors and further discarded.
 
-If all predictors contain missing values,  then `p+2` models are fit and these may also be explicitly specified. The two arguments (`formula` and `family`) in the `mipred` and `mipred.cv` functions only define the first prediction model which will is used for the outcome. Without further specification,  mice will internally resort to default settings (see `mice` documentation) and use of 
-**all** predictors **as well as the outcome** for calibration of any missing values. If desired however, hen mice options can be specified to tailor the missing values models as required. 
+If all predictors contain missing values,  then `p+2` models are fit and these may also be explicitly specified. The two arguments (`formula` and `family`) in the `mipred` and `mipred.cv` functions only define the first prediction model which is used for the outcome (this is often referred to as the 'substantive' model in literature). Without further specification,  mice will internally resort to default settings (see `mice` documentation) and use of 
+**all** predictors **as well as the outcome** for calibration of any missing values. If desired however, then mice options can be specified to tailor the missing values models as required. 
 
 Imagine for example, that we wish to use all predictors in the data.frame to predict the outcome, but would wish to remove certain predictors from the calibration of imputation models.  This could be done as shown below. 
 To simplify some code generation, we first run a regular mice imputation on the data.frame (excluding the identification variable). We save the result in an object. 
 ```{r}
 imp <- mice(cll_bin[, -1], m = 1, maxit = 0, printFlag = FALSE)
 ```
-Now inspect the imputation object and particularly the `predictorMatrix` embedded in this object. 
+Now inspect the `mice` imputation object and particularly the `predictorMatrix` embedded in this object. 
 ```{r}
 names(imp)
 ```
@@ -994,8 +1055,8 @@ If you specify a `seed` vector of length different from 50,  then either only th
 
 When using the option `method="rubin"`, all imputations are directly calculated within a single call to `mice` for each fold and hence,  we need only specify `folds` number of seeds. In this case,  the code would become 
 ```{r, eval=FALSE}
-seed<-round(runif(10)*10000) # 10*5 because 10 folds by 5 imputations (for each fold)
-# these 5 imputations are directly generated in one call to the `mice`function for each fold
+seed<-round(runif(10)*10000) # 10 because 10 folds and all imputations generated directly for each fold
+# the 5 imputations are directly generated in one call to the `mice`function for each fold
 mice.options<-NULL
 mice.options$seed<-seed
 set.seed(12345) # need to set seed explicitly here as well due to random generation for
@@ -1032,16 +1093,16 @@ mipred.cv(
 The problem arises when all observation at a specific factor level are assigned to one of the folds only. 
 This causes the factor level to be empty in the corresponding calibration set when that fold is chosen as the left-out set and as a consequence, the corresponding regression effect cannot be estimated on the calibration data. This causes an error when new factor levels are encountered when the model is applied to the left-out fold.
 
-We should note that this however is not an actual implementation fault of `mipred`,  but rather a data analytic issue.The simplest solution is to combine (adjacent) factor levels to reduce sparsity.
+We should note that this however is not an actual implementation fault of `mipred`,  but rather a data analytic issue. The simplest solution is to combine (adjacent) factor levels to reduce sparsity.  Alternatively,  we may increase the number of folds.
 
 ## Computational speed 
-Computational speeds of `mipred` and `mipred.cv` particularly will depend on the combination of options `folds` (number of folds), `nimp` (number of imputations) and the `mice` option `maxit`.  The latter is an internal option within the `mice` package which specifies the number of iterations for which the chained equations are run,  before storing the final sampled values as imputation).  Note that `mipred` sets `maxit` to value 50 by default,  which is different from the default option 5 used by the `mice` package. Increasing any of these 3 parameters will increase computation time. Usually,  for the same setting of these parameters, running `mipred` function with `method="rubin"` will be faster than for the default setting `method="averaging"` because fewer calls to `mice` are involved (see also above discussion on setting seeds). An easy way to achieve computational gains for the same specification of `folds` and `nimp` would be to reduce `maxit` (possibly to the default `mice` setting of five iterations). 
+Computational speeds of `mipred` and `mipred.cv` particularly will depend on the combination of options `folds` (number of folds), `nimp` (number of imputations) and the `mice` option `maxit`.  The latter is an internal option within the `mice` package which specifies the number of iterations for which the chained equations are run,  before storing the final sampled values as imputation).  Note that `mipred` overrides the `mice` option `maxit` and sets `maxit` to value 50 by default,  which is different from the default option 5 used by the `mice` package. Increasing any of these 3 parameters will increase computation time. Usually,  for the same setting of these parameters, running `mipred` functions with `method="rubin"` will be faster than for the default setting `method="averaging"` because fewer calls to `mice` are involved (see also above discussion on setting seeds). An easy way to achieve computational gains for the same specification of `folds` and `nimp` would be to reduce `maxit` (possibly to the default `mice` setting of five iterations). 
 
 
 
 
 # Acknowledgements
-We thank Johannes Schetelig (University Hospital of the Technical University Dresden/DKMS Clinical Trials Unit, Dresden, Germany) for making available the CLL dataset and for the extensive joint work on the previous analyses. 
+We thank EBMT and DKMS for their work in collecting and preparing the CLL data and for approval to share the data. We thank Johannes Schetelig (University Hospital of the Technical University Dresden/DKMS Clinical Trials Unit, Dresden, Germany)  for the extensive joint work in collaboration with L. de Wreede on the previous analyses on these data.
 These results have  been published in two publications: @JSchetelig2017a  and @JSchetelig2017b.
 
 

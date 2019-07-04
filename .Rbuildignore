@@ -7,3 +7,7 @@
 ^cran-comments\.md$
 ^NEWS\.Rmd$
 ^CRAN-RELEASE$
+^repslist_av\.rda$
+^repslist_rb\.rda$
+^vignettes/repslist_av\.rda$
+^vignettes/repslist_rb\.rda$

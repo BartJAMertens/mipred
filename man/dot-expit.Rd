@@ -9,6 +9,12 @@
 \arguments{
 \item{x}{Probability vector}
 }
+\value{
+The expit transform of x (inverse logit)
+}
 \description{
 Expit function converting odds to probability
+}
+\note{
+This is an internal 'mipred' function and not intended to be called directly
 }

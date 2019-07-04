@@ -6,6 +6,14 @@
 #' @param nimp Number of imputations for each observation
 #' @param folds Number of folds defined in newdata
 #' @param miop Mice options
+#'
+#' @note This is an internal 'mipred' function and not intended to be called directly
+#'
+#' @return A list containing predictions.
+#' \describe{ \item{\code{pred}}{Matrix
+#'   of predictions on the scale of the response variable of dimension \code{m}
+#'   by \code{nimp}.} \item{\code{linpred}}{Matrix of predictions on the scale
+#'   of the linear predictor of dimension \code{m} by \code{nimp}.} }
 
 .glm.mipred.cmb1.cv <-
   function(formula, family, dataset, nimp, folds, miop) {
@@ -32,7 +40,7 @@
         # Compute MI (once) in the whole dataset, run an imputation with m = 1, use previously generated options
 
         imp_data <-
-          impute(datanew, miop, 1, miop[["seed"]][k + (m - 1) * folds])
+          .impute(datanew, miop, 1, miop[["seed"]][k + (m - 1) * folds])
 
         data_compl <-
           complete(imp_data, 1)  # Select the completed data
@@ -67,6 +75,14 @@
 #' @param folds Number of folds defined in data
 #' @param nimp Number of imputations for each observation
 #' @param miop Mice options
+#'
+#' @note This is an internal 'mipred' function and not intended to be called directly
+#'
+#' @return A list containing predictions.
+#' \describe{ \item{\code{pred}}{Matrix
+#'   of predictions on the scale of the response variable of dimension \code{m}
+#'   by \code{nimp}.} \item{\code{linpred}}{Matrix of predictions on the scale
+#'   of the linear predictor of dimension \code{m} by \code{nimp}.} }
 
 .glm.mipred.cmb2.cv <-
   function(formula, family, dataset, nimp, folds, miop) {
@@ -97,7 +113,7 @@
         array(NA, dim = c(length(folddef[[k]]), modeldim, nimp)) # Initialize array to store imputed validation folds across imputations
 
       # Compute MI with m=M in the whole dataset, run an imputation with m = M, use previously generated options
-      imp_data <- impute(datanew, miop, nimp, miop[["seed"]][k])
+      imp_data <- .impute(datanew, miop, nimp, miop[["seed"]][k])
       coef_m <-
         matrix(NA, nrow = nimp, ncol = modeldim) # Initilize coefs matrix prior to Rubin's rule averaging
 

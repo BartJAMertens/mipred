@@ -64,7 +64,7 @@ Calculates predictions from generalized linear models when multiple
 imputations are used to account for missing values in predictor data.
 }
 \examples{
-\dontrun{
+\donttest{
 # Generate a copy of the cll data and construct binary outcome from survival information
 cll_bin<-cll
 cll_bin$srv5y_s[cll_bin$srv5y>12] <- 0  # Apply administrative censorship at t=12 months

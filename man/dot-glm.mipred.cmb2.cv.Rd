@@ -19,6 +19,16 @@
 
 \item{miop}{Mice options}
 }
+\value{
+A list containing predictions.
+\describe{ \item{\code{pred}}{Matrix
+  of predictions on the scale of the response variable of dimension \code{m}
+  by \code{nimp}.} \item{\code{linpred}}{Matrix of predictions on the scale
+  of the linear predictor of dimension \code{m} by \code{nimp}.} }
+}
 \description{
 Cross-validation of generalized linear model prediction using multiple imputation - Rubin's rule coefficient-averaging method
+}
+\note{
+This is an internal 'mipred' function and not intended to be called directly
 }

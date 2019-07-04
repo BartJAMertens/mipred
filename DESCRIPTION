@@ -3,21 +3,26 @@ Type: Package
 Title: Prediction using Multiple Imputation
 Version: 0.0.1
 Authors@R: person("Bart J. A.", "Mertens", email = "b.mertens@lumc.nl",
-                  role = c("aut", "cre"))
+                  role = c("aut", "cre"), comment = c(ORCID = "0000-0002-5019-0354"))
 Maintainer: Bart J. A. Mertens <b.mertens@lumc.nl>
 Description: Calibration of generalized linear models and Cox regression models for prediction using 
-    multiple imputation to account for missing values in the predictors as described in the paper 
-    corresponding to this package which is referenced in the vignette.
-    Imputations are generated using the package mice without using outcomes on 
-    observations for which the prediction is generated. Two options are provided to generate predictions. 
+    multiple imputation to account for missing values in the predictors as described in the paper by 
+    "Mertens, Banzato and de Wreede" (2018) <arXiv:1810.05099>. The methodology and calculations 
+    described in this paper are fully implemented in this package. The vignette describes all data analytic steps 
+    which allows users to replicate results using the package functions on the data analyzed in the paper or 
+    on their own data. 
+    Imputations are generated using the package 'mice' without using the outcomes of 
+    observations for which the prediction are generated. Two options are provided to generate predictions. 
     The first is prediction-averaging of predictions calibrated from single models fitted on single imputed 
     datasets within a set of multiple imputations. The second is application of the Rubin's rules pooled model.
     For both implementations, unobserved values in the predictor data of new observations for 
-    which the predictions are derived are automatically imputed. We also include functionality 
-    to carry out cross-validation. The present version is still in development and should support continuous, 
-    binary and counting outcomes, but we have only checked performance for binary outcome logistic regression 
-    modeling. We will include the Cox regression extension later.
-URL: https://github.com/BartJAMertens/mipred
+    which the predictions are derived are automatically imputed. The package contains two basic functions,  
+    the first mipred() generates predictions of outcome on new observations. The second mipred.cv() generates 
+    cross-validated predictions with the methodology on existing data for which outcomes
+    have already been observed. The present version is still in development and should support continuous, 
+    binary and counting outcomes, but we have only thoroughly checked performance for binary outcome 
+    logistic regression modeling. We will include the Cox regression extension later.
+URL: https://github.com/BartJAMertens/mipred, https://arxiv.org/abs/1810.05099, https://www.researchgate.net/project/Prediction-calibration-using-multiple-imputations-to-account-for-missing-predictor-values
 BugReports: https://github.com/BartJAMertens/mipred/issues
 Depends: R (>= 3.5.0)
 License: GPL-3
